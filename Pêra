@@ -1,0 +1,67 @@
+library(ggplot2)
+load("filmes_1_ate_5180")
+
+# Organizando generos
+genero <- list()
+for (i in 1:nrow(filmesIMDB)){
+  a <- strsplit(filmesIMDB[i, 6], ",")
+  genero <- append(genero, a[[1]][1])
+}
+
+genero
+
+filmesIMDB$Genre <- genero
+
+#Organizando duração
+dur <- list()
+filmesIMDB$filmeDomGross <- as.numeric(gsub(",","",filmesIMDB$filmeDomGross))
+filmesIMDB$Year <- as.numeric(filmesIMDB$Year)
+for (i in 1:nrow(filmesIMDB)){
+  a <- strsplit(filmesIMDB[i, 5], " ")
+  dur <- append(dur, a[[1]][1])
+}
+
+filmesIMDB$Runtime <- as.numeric(dur)
+
+#Duração x bilheteria por genero
+ggplot(filmesIMDB, aes(filmesIMDB$Runtime, filmesIMDB$filmeDomGross, col = as.factor(unlist(Genre)), alpha = 0.4))  + geom_point() + coord_cartesian(xlim = c(0:250)) + facet_wrap(~as.factor(unlist(Genre)), 5)
+
+filmesIMDB$filmeBudget <- as.numeric(gsub(",","",filmesIMDB$filmeBudget))
+
+#Custo x bilheteria por genero
+ggplot(filmesIMDB, aes(filmesIMDB$filmeBudget, filmesIMDB$filmeDomGross, col = as.factor(unlist(Genre)), alpha = 0.4))  + geom_point()  + facet_wrap(~as.factor(unlist(Genre)), 5)
+
+#Custo x notas imdb por genero
+ggplot(filmesIMDB, aes(filmesIMDB$filmeBudget, filmesIMDB$imdbRating, col = as.factor(unlist(Genre)), alpha = 0.4))  + geom_point()  + facet_wrap(~as.factor(unlist(Genre)), 5)
+
+#Evolução por anos
+for(i in 1:nrow(filmesIMDB)){
+  if(1900 <= filmesIMDB$Year[i] & filmesIMDB$Year[i] <= 1909){
+    filmesIMDB$decada[i] <- 00
+  } else if(1910 <= filmesIMDB$Year[i] & filmesIMDB$Year[i] <= 1919){
+    filmesIMDB$decada[i] <- 10
+  } else if(1920 <= filmesIMDB$Year[i] & filmesIMDB$Year[i] <= 1929){
+    filmesIMDB$decada[i] <- 20
+  } else if(1930 <= filmesIMDB$Year[i] & filmesIMDB$Year[i] <= 1939){
+    filmesIMDB$decada[i] <- 30
+  } else if(1940 <= filmesIMDB$Year[i] & filmesIMDB$Year[i] <= 1949){
+    filmesIMDB$decada[i] <- 40
+  } else if(1950 <= filmesIMDB$Year[i] & filmesIMDB$Year[i] <= 1959){
+    filmesIMDB$decada[i] <- 50
+  } else if(1960 <= filmesIMDB$Year[i] & filmesIMDB$Year[i] <= 1969){
+    filmesIMDB$decada[i] <- 60
+  } else if(1970 <= filmesIMDB$Year[i] & filmesIMDB$Year[i] <= 1979){
+    filmesIMDB$decada[i] <- 70
+  } else if(1980 <= filmesIMDB$Year[i] & filmesIMDB$Year[i] <= 1989){
+    filmesIMDB$decada[i] <- 80
+  } else if(1990 <= filmesIMDB$Year[i] & filmesIMDB$Year[i] <= 1999){
+    filmesIMDB$decada[i] <- 2000
+  } else if(2000 <= filmesIMDB$Year[i] & filmesIMDB$Year[i] <= 2009){
+    filmesIMDB$decada[i] <- 2010
+  } else if(2010 <= filmesIMDB$Year[i] & filmesIMDB$Year[i] <= 2020){
+    filmesIMDB$decada[i] <- 2020
+  }
+  
+}
+filmesIMDB$decada <- as.numeric(filmesIMDB$decada)
+table(filmesIMDB$decada)
