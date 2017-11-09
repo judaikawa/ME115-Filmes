@@ -1,4 +1,5 @@
 library(ggplot2)
+library(dplyr)
 load("filmes_1_ate_5180")
 
 # Organizando generos
@@ -24,15 +25,16 @@ for (i in 1:nrow(filmesIMDB)){
 filmesIMDB$Runtime <- as.numeric(dur)
 
 #Duração x bilheteria por genero
-ggplot(filmesIMDB, aes(filmesIMDB$Runtime, filmesIMDB$filmeDomGross, col = as.factor(unlist(Genre)), alpha = 0.4))  + geom_point() + coord_cartesian(xlim = c(0:250)) + facet_wrap(~as.factor(unlist(Genre)), 5)
+ggplot(filmesIMDB, aes(filmesIMDB$Runtime, filmesIMDB$filmeDomGross, col = as.factor(unlist(Genre)), alpha = 0.4))  + geom_point() + coord_cartesian(xlim = c(0:250)) + facet_wrap(~as.factor(unlist(Genre)), 5) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ggtitle("Duração por bilheteria") + labs(y = "Bilheteria", x = "Duração")
 
-filmesIMDB$filmeBudget <- as.numeric(gsub(",","",filmesIMDB$filmeBudget))
+
 
 #Custo x bilheteria por genero
-ggplot(filmesIMDB, aes(filmesIMDB$filmeBudget, filmesIMDB$filmeDomGross, col = as.factor(unlist(Genre)), alpha = 0.4))  + geom_point()  + facet_wrap(~as.factor(unlist(Genre)), 5)
+filmesIMDB$filmeBudget <- as.numeric(gsub(",","",filmesIMDB$filmeBudget))
+ggplot(filmesIMDB, aes(filmesIMDB$filmeBudget, filmesIMDB$filmeDomGross, col = as.factor(unlist(Genre)), alpha = 0.4))  + geom_point()  + facet_wrap(~as.factor(unlist(Genre)), 5) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ggtitle("Custo por bilheteria") + labs(y = "Bilheteria", x = "Custo")
 
 #Custo x notas imdb por genero
-ggplot(filmesIMDB, aes(filmesIMDB$filmeBudget, filmesIMDB$imdbRating, col = as.factor(unlist(Genre)), alpha = 0.4))  + geom_point()  + facet_wrap(~as.factor(unlist(Genre)), 5)
+ggplot(filmesIMDB, aes(filmesIMDB$filmeBudget, filmesIMDB$imdbRating, col = as.factor(unlist(Genre)), alpha = 0.4))  + geom_point()  + facet_wrap(~as.factor(unlist(Genre)), 5) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ggtitle("Custo por notas") + labs(y = "Notas", x = "Custo")
 
 #Evolução por anos
 for(i in 1:nrow(filmesIMDB)){
@@ -65,3 +67,10 @@ for(i in 1:nrow(filmesIMDB)){
 }
 filmesIMDB$decada <- as.numeric(filmesIMDB$decada)
 table(filmesIMDB$decada)
+ggplot(filmesIMDB, aes(filmesIMDB$Year, filmesIMDB$filmeDomGross/1000000, col = as.factor(filmesIMDB$decada)), alpha = 0.4) + geom_point() + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ggtitle("Bilheterias ao longo dos anos") + labs(y = "Bilheteria em milhões", x = "Anos")
+
+# Calculando a razão entre bilheteria e custo; lucro
+filmesIMDB$filmeDomGross[is.na(filmesIMDB$filmeDomGross)] <- 0
+filmesIMDB$filmeBudget[is.na(filmesIMDB$filmeBudget)] <- 0
+filmesIMDB$razao <- round(filmesIMDB$filmeDomGross/filmesIMDB$filmeBudget, 4)
+filmesIMDB$lucro <- round(filmesIMDB$filmeDomGross - filmesIMDB$filmeBudget, 4)
